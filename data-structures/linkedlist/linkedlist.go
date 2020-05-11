@@ -65,7 +65,7 @@ func (ll *LinkedList) Append(data int) {
 
 // Prepend puts the element on head of the linked list
 func (ll *LinkedList) Prepend(data int) {
-
+	n := &Node{data, nil}
 	if ll.IsEmpty() {
 		ll.head, ll.tail = n, n
 		ll.size++
