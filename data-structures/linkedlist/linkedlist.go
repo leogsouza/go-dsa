@@ -77,3 +77,28 @@ func (ll *LinkedList) Prepend(data int) {
 	ll.head.next = head
 	ll.size++
 }
+
+func (ll *LinkedList) InsertAt(index, data int) {
+	if index < 0 {
+		fmt.Errorf("Index should be greater than 0")
+		return
+	}
+
+	if index == 0 {
+		ll.Prepend(data)
+	}
+
+	if index == ll.Size() {
+		ll.Append(data)
+	}
+
+	n := ll.head
+	for i := 0; i < index; i++ {
+		n = n.next
+	}
+
+	nn := &Node{data, n.next}
+	n.next = nn
+	ll.size++
+
+}
