@@ -7,13 +7,19 @@ import (
 
 // Graph represents a graph data structure
 type Graph struct {
-	adjacency map[string][]string
+	adjacency map[string][]Edge
+}
+
+// Edge represents an edge between 2 nodes
+type Edge struct {
+	node   string
+	weight int
 }
 
 // NewGraph creates a New Graph
 func NewGraph() Graph {
 	return Graph{
-		adjacency: make(map[string][]string),
+		adjacency: make(map[string][]Edge),
 	}
 }
 
@@ -25,23 +31,24 @@ func (g *Graph) AddVertex(vertex string) bool {
 		return false
 	}
 
-	g.adjacency[vertex] = []string{}
+	g.adjacency[vertex] = []Edge{}
 	return true
 }
 
 // AddEdge adds an egde between two vertices
 // if vertex does not exists or edge exists it is ignored
-func (g *Graph) AddEdge(vertex, node string) bool {
+func (g *Graph) AddEdge(vertex, node string, weight int) bool {
 	if _, ok := g.adjacency[vertex]; !ok {
 		fmt.Printf("vertex %v does not exists\n", vertex)
 		return false
 	}
-	if ok := contains(g.adjacency[vertex], node); ok {
+	e := Edge{node: node, weight: weight}
+	if ok := contains(g.adjacency[vertex], e.node); ok {
 		fmt.Printf("node %v already exists\n", node)
 		return false
 	}
 
-	g.adjacency[vertex] = append(g.adjacency[vertex], node)
+	g.adjacency[vertex] = append(g.adjacency[vertex], e)
 	return true
 }
 
@@ -58,9 +65,9 @@ func (g Graph) BFS(start string) {
 		current, q = q[0], q[1:]
 		fmt.Println("BFS", current)
 		for _, node := range g.adjacency[current] {
-			if !visited[node] {
-				q = append(q, node)
-				visited[node] = true
+			if !visited[node.node] {
+				q = append(q, node.node)
+				visited[node.node] = true
 			}
 		}
 	}
@@ -77,8 +84,8 @@ func (g Graph) dfsRecursive(start string, visited map[string]bool) {
 	fmt.Println("DFS", start)
 
 	for _, node := range g.adjacency[start] {
-		if !visited[node] {
-			g.dfsRecursive(node, visited)
+		if !visited[node.node] {
+			g.dfsRecursive(node.node, visited)
 		}
 	}
 }
@@ -96,7 +103,8 @@ func (g Graph) CreatePath(firstNode, secondNode string) bool {
 	visited[firstNode] = false
 
 	for len(q) > 0 {
-		currentNode, q := q[0], q[1:]
+		var currentNode string
+		currentNode, q = q[0], q[1:]
 		path = append(path, currentNode)
 		edges := g.adjacency[currentNode]
 		if contains(edges, secondNode) {
@@ -106,9 +114,9 @@ func (g Graph) CreatePath(firstNode, secondNode string) bool {
 		}
 
 		for _, node := range g.adjacency[currentNode] {
-			if !visited[node] {
-				visited[node] = true
-				q = append(q, node)
+			if !visited[node.node] {
+				visited[node.node] = true
+				q = append(q, node.node)
 			}
 		}
 	}
@@ -126,10 +134,10 @@ func (g Graph) createVisited() map[string]bool {
 	return visited
 }
 
-func contains(slice []string, item string) bool {
+func contains(slice []Edge, item string) bool {
 	set := make(map[string]struct{}, len(slice))
 	for _, s := range slice {
-		set[s] = struct{}{}
+		set[s.node] = struct{}{}
 	}
 
 	_, ok := set[item]
